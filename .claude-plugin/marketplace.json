@@ -1,0 +1,17 @@
+{
+  "name": "diez50",
+  "owner": {
+    "name": "Diez50"
+  },
+  "metadata": {
+    "description": "Plugins del colectivo Diez50 — los asistentes de Rita empaquetados",
+    "version": "0.12.3"
+  },
+  "plugins": [
+    {
+      "name": "asistente-de-edicion",
+      "source": "./asistente-de-edicion",
+      "description": "Asistente de edición documental para DaVinci Resolve Free: indexado, transcripción local, sync multi-señal, multicám verificado, curaduría y timelines vía Consola Lua."
+    }
+  ]
+}

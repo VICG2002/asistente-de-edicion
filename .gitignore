@@ -1,0 +1,60 @@
+# .gitignore — plugins del colectivo Diez50 (raíz de marketplace).
+# Versiona la FUENTE del plugin: manifiestos + skills + motor vendorizado.
+# Ignora el artefacto empaquetado y todo lo generado o por-proyecto.
+
+# --- artefacto de release: se reconstruye con tools/build-plugin.sh ---
+*.plugin
+*.zip
+dist/
+.build/
+
+# --- entorno e intermedios de Python (el motor vendorizado ES fuente) ---
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# --- macOS ---
+.DS_Store
+._*
+
+# --- credenciales ---
+.env
+*.env
+*.key
+*.pem
+*credential*
+
+# --- horneados por proyecto: no deben existir dentro del plugin.
+#     Contienen rutas absolutas, nombres reales y transcripciones. ---
+*_data.lua
+*_multicam.lua
+engine/resolve/asistente_*.lua
+asistente-de-edicion/engine/resolve/asistente_*.lua
+
+# ...pero asistente_lib.lua NO es un horneado: es la LIBRERIA, y el propio
+# build-plugin.sh la declara OBLIGATORIA en su lista blanca ("sin ella no hay
+# markers, ni A-roll/B-roll, ni layout de pistas"). El glob de arriba se la
+# tragaba, asi que no estaba en GitHub: quien anadiera el marketplace desde el
+# remoto recibia los 96 scripts, corria el pipeline entero y moria en el ultimo
+# paso. Descubierto en la auditoria del 2026-08-13.
+!engine/resolve/asistente_lib.lua
+!asistente-de-edicion/engine/resolve/asistente_lib.lua
+
+# --- pesos, logs, datos ---
+models/
+logs/
+*.log
+*.db
+*.sqlite*
+
+# --- medios ---
+*.wav
+*.mp3
+*.m4a
+*.mp4
+*.mov
+*.pdf
+*.gz
+*.tar

@@ -1,0 +1,315 @@
+{
+  "_doc": [
+    "Registro declarativo de camaras. UNICA fuente de verdad para saber que",
+    "es cada clip. Lo consume lib/cameras.py; ningun script debe volver a",
+    "escribir su propia funcion classify_camera ni su propio SQL de MAIN_CAM.",
+    "",
+    "Override por proyecto: <disco>/.cinema_assistant/camera_profiles.json",
+    "Ese archivo se FUSIONA encima de este (mismo id = reemplaza el perfil;",
+    "id nuevo = se agrega). Asi un proyecto puede corregir una camara sin",
+    "tocar el motor ni el plugin.",
+    "",
+    "CAMPOS",
+    "  id          identificador unico, kebab-case",
+    "  label       nombre legible para reportes",
+    "  role        main | gopro | drone | other   (valores historicos del",
+    "              motor; NO renombrar sin migrar todos los consumidores)",
+    "  role_label  nombre en español del rol, solo para informes",
+    "  priority    menor = se evalua antes. Primer match gana.",
+    "  match       clausulas OR: si CUALQUIERA acierta, el perfil aplica",
+    "    camera_model        lista de modelos exactos (case-insensitive)",
+    "    camera_model_regex  lista de regex sobre el modelo",
+    "    filename_prefix     lista de prefijos de nombre (case-insensitive)",
+    "    filename_glob       lista de patrones GLOB — MISMA sintaxis en Python y",
+    "                        en SQLite, incluidas clases [PHX] y [0-9]. PREFERIR",
+    "                        sobre filename_regex: el regex no se puede llevar al",
+    "                        WHERE de SQL, asi que el material que solo matchea por",
+    "                        regex queda fuera de los pasos que filtran en SQL.",
+    "    filename_regex      lista de regex sobre el nombre (ultimo recurso)",
+    "    make                lista de fabricantes exactos",
+    "    ext                 lista de extensiones con punto",
+    "  decodable   false si ffmpeg NO puede decodificar el archivo. Los pasos",
+    "              que necesitan decodificar (analyze_segments, transcribe)",
+    "              lo SALTAN registrando el motivo, nunca en silencio.",
+    "  probe       ffprobe | mediainfo | exiftool — sonda preferida",
+    "  sidecar     handler de archivo lateral (sony_xavc, braw, none)",
+    "  audio       scratch: si el cuerpo graba audio de referencia utilizable",
+    "",
+    "Al agregar una camara: agregar el perfil aqui y correr",
+    "  bash bin/run_tests.sh tests.test_camaras",
+    "Si un consumidor quedo fuera, la prueba falla."
+  ],
+
+  "profiles": [
+    {
+      "id": "dji-drone",
+      "label": "DJI (drone)",
+      "role": "drone",
+      "role_label": "Drone",
+      "priority": 10,
+      "match": {
+        "filename_prefix": ["DJI"],
+        "make": ["DJI"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": false }
+    },
+    {
+      "id": "gopro",
+      "label": "GoPro HERO",
+      "role": "gopro",
+      "role_label": "Accion",
+      "priority": 20,
+      "match": {
+        "filename_prefix": ["GOPR"],
+        "filename_glob": ["G[PHX][0-9][0-9]*"],
+        "make": ["GoPro"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true, "note": "audio embebido suele bastar; no se sincroniza" }
+    },
+
+    {
+      "id": "canon-dslr-mvi",
+      "label": "Canon DSLR (MVI_)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 30,
+      "match": { "filename_prefix": ["MVI_"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "canon-eos-6d",
+      "label": "Canon EOS 6D",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 31,
+      "match": { "camera_model": ["Canon EOS 6D"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "canon-eos-r",
+      "label": "Canon EOS R5 / R6",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 32,
+      "match": {
+        "camera_model": ["Canon EOS R5", "Canon EOS R6", "Canon EOS R6m2",
+                         "Canon EOS R5 C", "Canon EOS R8"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "blackmagic",
+      "label": "Blackmagic (ProRes)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 35,
+      "match": {
+        "filename_prefix": ["BLAC"],
+        "make": ["Blackmagic Design"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+
+    {
+      "id": "sony-fx30",
+      "label": "Sony FX30",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 40,
+      "match": {
+        "camera_model": ["ILME-FX30"],
+        "filename_prefix": ["VICG"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "sidecar": "sony_xavc",
+      "audio": { "scratch": true },
+      "note": "10-bit Main10; analyze_segments normaliza con format=yuv420p"
+    },
+    {
+      "id": "sony-a6700",
+      "label": "Sony a6700",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 41,
+      "match": { "camera_model": ["ILCE-6700"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "sidecar": "sony_xavc",
+      "audio": { "scratch": true },
+      "note": "camaras de CAMAROGRAFO_1 y CAMAROGRAFO_2 en THE AVALANCHES (leccion 50)"
+    },
+    {
+      "id": "sony-fx3",
+      "label": "Sony FX3",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 42,
+      "match": { "camera_model": ["ILME-FX3"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "sidecar": "sony_xavc",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "sony-alpha",
+      "label": "Sony Alpha (a7/a7S/a7R/ZV)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 43,
+      "match": {
+        "camera_model": ["ILCE-7SM3", "ILCE-7M4", "ILCE-7RM5", "ZV-E1", "ZV-E10"],
+        "camera_model_regex": ["^ILCE-", "^ZV-"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "sidecar": "sony_xavc",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "panasonic-lumix",
+      "label": "Panasonic Lumix S / GH",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 45,
+      "match": {
+        "camera_model": ["DC-S5", "DC-S5M2", "DC-S1H", "DC-GH5", "DC-GH6"],
+        "camera_model_regex": ["^DC-S", "^DC-GH"]
+      },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+
+    {
+      "id": "braw",
+      "label": "Blackmagic RAW",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 60,
+      "match": { "ext": [".braw"] },
+      "decodable": false,
+      "probe": "mediainfo",
+      "sidecar": "braw",
+      "audio": { "scratch": true },
+      "note": "ffmpeg NO decodifica BRAW. Resolve lo conforma nativo; el motor indexa metadata y SALTA analisis/transcripcion con motivo registrado."
+    },
+    {
+      "id": "red-r3d",
+      "label": "RED R3D",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 61,
+      "match": { "ext": [".r3d"] },
+      "decodable": false,
+      "probe": "mediainfo",
+      "audio": { "scratch": true },
+      "note": "requiere REDline para decodificar; sin el, mismo trato que BRAW."
+    },
+    {
+      "id": "arri-raw",
+      "label": "ARRIRAW",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 62,
+      "match": { "ext": [".ari", ".arx"] },
+      "decodable": false,
+      "probe": "mediainfo",
+      "audio": { "scratch": false },
+      "note": "ffmpeg NO decodifica ARRIRAW. Resolve lo conforma nativo; el motor indexa metadata y SALTA analisis/transcripcion con motivo registrado."
+    },
+    {
+      "id": "cinema-dng",
+      "label": "CinemaDNG",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 63,
+      "match": { "ext": [".dng"] },
+      "decodable": false,
+      "probe": "exiftool",
+      "audio": { "scratch": false },
+      "note": "Secuencia de imagenes, sin audio propio. ffmpeg no la trata como clip de video: se SALTA analisis/transcripcion con motivo registrado y Resolve la conforma nativo."
+    },
+    {
+      "id": "mxf-generico",
+      "label": "MXF (XAVC / XF-AVC / DNxHD)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 64,
+      "match": { "ext": [".mxf"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true },
+      "note": "ffprobe SI lee MXF. Solo faltaba en el registro."
+    },
+
+    {
+      "id": "sony-generico",
+      "label": "Sony (cuerpo no catalogado)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 90,
+      "match": { "make": ["Sony"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "sidecar": "sony_xavc",
+      "audio": { "scratch": true },
+      "note": "Red de seguridad: un cuerpo Sony nuevo entra como principal en vez de caer en 'other' y quedarse fuera del pipeline en silencio (leccion 50). inventario_camaras.py lo reporta para que le hagas perfil propio."
+    },
+    {
+      "id": "canon-generico",
+      "label": "Canon (cuerpo no catalogado)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 91,
+      "match": { "make": ["Canon"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "panasonic-generico",
+      "label": "Panasonic (cuerpo no catalogado)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 92,
+      "match": { "make": ["Panasonic"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    },
+    {
+      "id": "nikon-generico",
+      "label": "Nikon (cuerpo no catalogado)",
+      "role": "main",
+      "role_label": "Principal",
+      "priority": 93,
+      "match": { "make": ["NIKON CORPORATION", "Nikon"] },
+      "decodable": true,
+      "probe": "ffprobe",
+      "audio": { "scratch": true }
+    }
+  ],
+
+  "fallback": {
+    "id": "otro",
+    "label": "Sin catalogar",
+    "role": "other",
+    "role_label": "Misc",
+    "decodable": true,
+    "probe": "ffprobe",
+    "audio": { "scratch": false }
+  }
+}

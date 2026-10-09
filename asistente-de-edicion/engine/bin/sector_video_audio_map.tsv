@@ -1,0 +1,15 @@
+# Mapping declarativo sector_video → audio_folder externo.
+# Una linea por par. Si un sector tiene varias carpetas de audio, agregar
+# varias filas (run_full_pipeline.sh las recorre todas).
+# Columnas (separadas por TAB):
+#   1. sector_video  — sub-folder bajo `ESCALANDO MEXICO/`
+#   2. audio_folder  — sub-folder bajo el root del disco (incluye `AUDIOS/`)
+#
+# Sectores sin audio externo dedicado (Chontacatlan, MINERAL DEL CHICO PRIMER
+# VISITA): omitidos. Su material usa audio embebido en la camara.
+GUADALAJARA	AUDIOS/AUDIOS GUADALAJARA
+GUADALCAZAR	AUDIOS/AUDIOS GUADALCAZAR
+GUADALCAZAR	AUDIOS/AUDIOS GUADALCAZAR 2
+GUANAJUATO	AUDIOS/AUDIOS GUANAJUATO
+JILOTEPEC	AUDIOS/AUDIOS JILOTEPEC ULTIMO FIN
+MONTERREY	AUDIOS/AUDIOS MONTERREY
