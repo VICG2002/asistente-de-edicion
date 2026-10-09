@@ -29,8 +29,8 @@ rodajes con varias cámaras.
 ## Qué necesitas
 
 - Una **Mac** (Apple Silicon recomendado). El motor solo corre en macOS.
-- **Claude Code**, en la terminal o en la app de escritorio, con una cuenta de
-  Claude.
+- **Claude Code**, en la terminal o en la app de escritorio, con el **plan Pro de
+  Claude** o uno superior. Claude Code no viene en el plan gratuito.
 - [**Homebrew**](https://brew.sh).
 - **DaVinci Resolve**, Free o Studio. Probado en la 21.1.
 - Unos 2 GB de disco para el modelo de Whisper.
@@ -93,6 +93,7 @@ las personas que aparecen en ellos están cambiados por seudónimos.
 
 ## Contacto
 
+- Correo: diezcincuentastudios@gmail.com
 - Instagram: [@diez50_](https://www.instagram.com/diez50_/)
 - YouTube: [@Diez50](https://www.youtube.com/@Diez50)
 - Si algo falla, abre un

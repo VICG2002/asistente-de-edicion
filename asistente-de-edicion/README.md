@@ -48,7 +48,8 @@ material), garantías verificables (verifiers que fallan, no promesas), y
 ## Requisitos
 
 macOS (Apple Silicon recomendado), Homebrew, DaVinci Resolve Free o Studio,
-~2 GB de disco para el modelo Whisper.
+~2 GB de disco para el modelo Whisper, y Claude Code con el **plan Pro de Claude**
+o uno superior (Claude Code no viene en el plan gratuito).
 
 **Resolve 21.1 (septiembre de 2026)** pasó el Python y el MCP a Studio, y según
 encierra los scripts de Free en un sandbox. Medido aquí: Studio 21.1.0 build
@@ -90,6 +91,6 @@ MIT — ver [LICENSE](../LICENSE). Los modelos de terceros que el motor descarga
 y no se distribuyen con este plugin.
 
 ---
-v0.12.3 — Victor Correa, Diez50. Motor y doctrina nacidos en los proyectos
+v0.12.4 — Victor Correa, Diez50. Motor y doctrina nacidos en los proyectos
 ESCALANDO MEXICO, Zezzions, Más Allá del Balón, Film Club Café, Fantástico
 Cómics y The Avalanches.

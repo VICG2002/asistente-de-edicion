@@ -1,6 +1,6 @@
 {
   "name": "asistente-de-edicion",
-  "version": "0.12.3",
+  "version": "0.12.4",
   "description": "Asistente de edición documental para DaVinci Resolve Free (macOS, español): indexado, transcripción local con Whisper, sync multi-señal (transcript + reloj + waveform), multicám verificado, curaduría y timelines vía Consola Lua. Motor Python incluido; 100% local y gratuito.",
   "author": {
     "name": "Victor Correa — Diez50"
